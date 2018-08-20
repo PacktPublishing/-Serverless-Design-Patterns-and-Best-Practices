@@ -1,0 +1,11 @@
+{
+    "logger": {},
+    "dynamodb": {
+        "region": "test",
+        "endpoint": "http://peopleperhour-dynamodb:8000",
+        "accessKeyId": "test",
+        "secretAccessKey": "test",
+        "trackingUrlTable": "${CONFIG_TRACKING_URL_TABLE_NAME}",
+        "trackerIndex": "${CONFIG_TRACKERS_INDEX_NAME}"
+    }
+}

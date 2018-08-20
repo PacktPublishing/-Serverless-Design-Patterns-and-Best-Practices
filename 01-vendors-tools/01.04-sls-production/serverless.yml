@@ -1,0 +1,106 @@
+# For full config options, check the docs:
+#    docs.serverless.com
+service: your-service-name-v1 # NOTE: update this with your service name
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${env:SERVERLESS_STAGE}
+  region: ${env:SERVERLESS_REGION}
+  versionFunctions: false
+
+# you can add statements to the Lambda function's IAM Role here
+#  iamRoleStatements:
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:ListBucket"
+#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:PutObject"
+#      Resource:
+#        Fn::Join:
+#          - ""
+#          - - "arn:aws:s3:::"
+#            - "Ref" : "ServerlessDeploymentBucket"
+#            - "/*"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+package:
+  exclude:
+    - .git/**
+    - .serveless/**
+    - config/**
+    - coverage/**
+    - node_modules/.bin/**
+    - node_modules/eslint/**
+    - node_modules/istanbul/**
+    - node_modules/jasmine*/**
+    - node_modules/serverless/**
+    - spec/**
+    - .*
+    - package.json
+    - README.md
+  include:
+    - config/config.json
+    - config/schema.json
+    - config/config.js
+
+custom:
+  accountId: ${env:SERVERLESS_ACCOUNT_ID}
+  authorizer:
+    arn: arn:aws:lambda:${self:provider.region}:${self:custom.accountId}:function:nsp-identity-services-v1-${self:provider.stage}-custom-authorizer
+    resultTtlInSeconds: 300
+    identitySource: method.request.header.Authorization
+
+functions:
+  sayHello:
+    handler: src/lambda/say-hello/handler.handler
+
+#    The following are a few example events you can configure
+#    NOTE: Please make sure to change your handler code to work with those events
+#    Check the event documentation for details
+    events:
+      - http:
+          path: say/hello
+          method: get
+#     Comment this line if you don't need Neosperience authentication:
+          authorizer: ${self:custom.authorizer}
+#      - s3: ${env:BUCKET}
+#      - schedule: rate(10 minutes)
+#      - sns: greeter-topic
+#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
+#      - alexaSkill
+#      - iot:
+#          sql: "SELECT * FROM 'some_topic'"
+#      - cloudwatchEvent:
+#          event:
+#            source:
+#              - "aws.ec2"
+#            detail-type:
+#              - "EC2 Instance State-change Notification"
+#            detail:
+#              state:
+#                - pending
+#      - cloudwatchLog: '/aws/lambda/hello'
+#      - cognitoUserPool:
+#          pool: MyUserPool
+#          trigger: PreSignUp
+
+#    Define function environment variables here
+#    environment:
+#      variable2: value2
+
+resources:
+  Resources:
+    BasePathMapping:
+      Type: "AWS::ApiGateway::BasePathMapping"
+      Properties:
+        BasePath: v1
+        DomainName: ${env:SERVERLESS_CUSTOM_DOMAIN_NAME_BASE_DOMAIN_NAME}
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Stage: ${self:provider.stage}

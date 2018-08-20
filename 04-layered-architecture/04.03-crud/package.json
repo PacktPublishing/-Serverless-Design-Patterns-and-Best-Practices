@@ -1,0 +1,59 @@
+{
+  "name": "packt-url-shortener",
+  "version": "1.0.0",
+  "displayName": "YOUR PROJECT DISPLAY NAME",
+  "description": "Starter project for serverless nodejs services. Please edit this package.json file and change it accordingly to your needs.",
+  "main": "index.js",
+  "scripts": {
+    "ci": "ENV=ci eslint . && ENV=ci istanbul cover --root src/ jasmine JASMINE_CONFIG_PATH=spec/support/jasmine.all.json",
+    "cover": "ENV=test istanbul cover --root src/ jasmine JASMINE_CONFIG_PATH=spec/support/jasmine.all.json",
+    "cover-unit": "ENV=test istanbul cover --root src/ jasmine",
+    "lint": "ENV=test eslint .",
+    "test": "ENV=test jasmine",
+    "test-functional": "ENV=test jasmine JASMINE_CONFIG_PATH=spec/support/jasmine.functional.json",
+    "test-integration": "ENV=test jasmine JASMINE_CONFIG_PATH=spec/support/jasmine.integration.json",
+    "test-all": "ENV=test jasmine JASMINE_CONFIG_PATH=spec/support/jasmine.all.json",
+    "sls": "sls"
+  },
+  "homepage": "https://your/project/homepage",
+  "repository": {
+    "type": "git",
+    "url": "https://your/project/repo.git"
+  },
+  "bugs": {
+    "url": "https://url/to/issue/tracking/system"
+  },
+  "keywords": [
+    "YOUR KEYWORDS",
+    "nodejs",
+    "services"
+  ],
+  "contributors": [
+    {
+      "name": "Contributor 01 Name",
+      "email": "contributor01@email",
+      "url": "http://contributor/personal/page"
+    }
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ajv": "^6.0.0",
+    "bluebird": "^3.5.0",
+    "intravenous": "^0.1.4-beta",
+    "locale": "^0.1.0",
+    "lodash": "^4.17.4",
+    "nconf": "^0.10.0",
+    "node-uuid": "^1.4.8",
+    "winston": "^2.3.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0",
+    "istanbul": "^0.4.5",
+    "jasmine": "^2.6.0",
+    "jasmine-core": "^2.6.3",
+    "jasmine-expect": "^3.7.0",
+    "jasmine-promises": "^0.4.1",
+    "jasmine-spec-reporter": "^4.1.0",
+    "serverless": "^1.15.2"
+  }
+}

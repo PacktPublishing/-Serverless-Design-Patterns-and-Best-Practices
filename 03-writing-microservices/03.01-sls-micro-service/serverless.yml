@@ -1,0 +1,23 @@
+service: sls-simple-microservice
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+
+functions:
+  hello:
+    handler: handler.user
+    events:
+      - http:
+          path: user
+          method: get
+      - http:
+          path: user
+          method: post
+      - http:
+          path: user/{id}
+          method: put
+      - http:
+          path: user/{id}
+          method: delete
+          

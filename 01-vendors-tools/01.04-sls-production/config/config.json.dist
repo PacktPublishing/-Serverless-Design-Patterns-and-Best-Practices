@@ -1,0 +1,20 @@
+{
+  "logger": {
+    "console": {
+      "type": "Console",
+      "options": {
+        "level": "${CONFIG_LOGGER_CONSOLE_OPTIONS_LEVEL}",
+        "colorize": false
+      }
+    },
+    "file": {
+      "type": "File",
+      "options": {
+        "filename": "${CONFIG_LOGGER_FILE_OPTIONS_FILENAME}",
+        "json": false,
+        "level": "${CONFIG_LOGGER_FILE_OPTIONS_LEVEL}",
+        "timestamp": true
+      }
+    }
+  }
+}

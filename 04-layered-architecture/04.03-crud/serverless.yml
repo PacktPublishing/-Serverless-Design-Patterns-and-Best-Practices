@@ -1,0 +1,113 @@
+#export SERVERLESS_STAGE=dev; export SERVERLESS_REGION=us-east-1; export SERVERLESS_CUSTOM_DOMAIN_NAME_BASE_DOMAIN_NAME=t.waylon-ai.com; sls deploy
+service: packt-url-shortener
+
+custom:
+  cfTableArn:
+    Fn::Join:
+      - ""
+      - - "arn:aws:dynamodb:"
+        - "${self:provider.region}"
+        - ":"
+        - "Ref" : "AWS::AccountId"
+        - ":"
+        - "table/"
+        - "Ref" : "TrackingUrlTable"
+
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${env:SERVERLESS_STAGE}
+  region: ${env:SERVERLESS_REGION}
+  versionFunctions: false  
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:*"
+      Resource: ${self:custom.cfTableArn}
+
+
+package:
+  exclude:
+    - .git/**
+    - .serveless/**
+    - config/**
+    - coverage/**
+    - node_modules/.bin/**
+    - node_modules/eslint/**
+    - node_modules/istanbul/**
+    - node_modules/jasmine*/**
+    - node_modules/serverless/**
+    - spec/**
+    - .*
+    - package.json
+    - README.md
+  include:
+    - config/config.json
+    - config/schema.json
+    - config/config.js
+
+functions:
+  createNewTrackingUrl:
+    handler: src/tracking-url/lambda/create/handler.handler
+    events:
+      - http:
+          path: tracking/url
+          method: post
+
+resources:
+  Resources:
+    TrackingUrlTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        TableName: TrackingUrls
+        AttributeDefinitions:
+          - AttributeName: URL
+            AttributeType: S
+          - AttributeName: tracker
+            AttributeType: S
+        KeySchema:
+          - AttributeName: URL
+            KeyType: HASH
+          - AttributeName: tracker
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
+        GlobalSecondaryIndexes:
+          - IndexName: TrackerIndex
+            KeySchema:
+              - AttributeName: tracker
+                KeyType: HASH
+            Projection:
+              NonKeyAttributes:
+                - URL
+                - tracker
+                - accessed
+                - lastUpdated
+              ProjectionType: INCLUDE
+            ProvisionedThroughput:
+              ReadCapacityUnits: 2
+              WriteCapacityUnits: 2          
+        Tags: 
+          - Key: Owner
+            Value: Waylon
+          - Key: Type
+            Value: Marketing
+#    BasePathMapping:
+#      Type: "AWS::ApiGateway::BasePathMapping"
+#      Properties:
+#        BasePath: v1
+#        DomainName: ${env:SERVERLESS_CUSTOM_DOMAIN_NAME_BASE_DOMAIN_NAME}
+#        RestApiId:
+#          Ref: ApiGatewayRestApi
+#        Stage: ${self:provider.stage}
+  Outputs:
+    TrackingUrlTableName:
+      Description: Name of the DynamoDB table to hold trackers
+      Value: 
+        Ref: TrackingUrlTable
+    TrackingUrlTableArn:
+      Description: Arn of the DynamoDB table to hold trackers
+      Value: ${self:custom.cfTableArn}

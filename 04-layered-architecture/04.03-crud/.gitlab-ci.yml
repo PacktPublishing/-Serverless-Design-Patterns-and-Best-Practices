@@ -1,0 +1,89 @@
+image: node:6.10
+
+before_script:
+  - npm prune
+  - npm update -q
+
+cache:
+  key: "$CI_BUILD_REF_NAME"
+  paths:
+    - 'node_modules/'
+
+test:
+  script:
+    - npm run ci
+
+deploy-dev:
+  stage: deploy
+  environment:
+    name: dev
+    url: https://t.dev.waylon.cloud/v1/
+  variables:
+    AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+    SERVERLESS_ACCOUNT_ID: $DEV_AWS_ACCOUNT_ID
+    SERVERLESS_STAGE: dev
+    SERVERLESS_REGION: eu-west-1
+    SERVERLESS_CUSTOM_DOMAIN_NAME_BASE_DOMAIN_NAME: t.dev.waylon.cloud
+    CONFIG_LOGGER_CONSOLE_OPTIONS_LEVEL: verbose
+    CONFIG_LOGGER_FILE_OPTIONS_LEVEL: verbose
+    CONFIG_LOGGER_FILE_OPTIONS_FILENAME: logs/dev.log
+  script:
+    - apt-get update -y && apt-get install gettext-base -y
+    - envsubst < "config/config.json.dist" > "config/config.json"
+    - npm run sls -- package
+    - node scripts/adjust-serverless-state.js
+    - npm run sls -- deploy --package .serverless
+    - rm config/config.json
+  only:
+    - master
+
+deploy-stage:
+  stage: deploy
+  environment:
+    name: stage
+    url: https://t.stage.waylon.cloud/v1
+  variables:
+    AWS_ACCESS_KEY_ID: $STAGE_AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY: $STAGE_AWS_SECRET_ACCESS_KEY
+    SERVERLESS_ACCOUNT_ID: $STAGE_AWS_ACCOUNT_ID
+    SERVERLESS_STAGE: test
+    SERVERLESS_REGION: eu-west-1
+    SERVERLESS_CUSTOM_DOMAIN_NAME_BASE_DOMAIN_NAME: t.stage.waylon.cloud
+    CONFIG_LOGGER_CONSOLE_OPTIONS_LEVEL: warn
+    CONFIG_LOGGER_FILE_OPTIONS_LEVEL: warn
+    CONFIG_LOGGER_FILE_OPTIONS_FILENAME: logs/stage.log
+  script:
+    - apt-get update -y && apt-get install gettext-base -y
+    - envsubst < "config/config.json.dist" > "config/config.json"
+    - npm run sls -- package
+    - node scripts/adjust-serverless-state.js
+    - npm run sls -- deploy --package .serverless
+    - rm config/config.json
+  only:
+    - stage
+
+deploy-waylon:
+  stage: deploy
+  environment:
+    name: waylon
+    url: https://t.waylon.cloud/v1
+  variables:
+    AWS_ACCESS_KEY_ID: $NC_AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY: $NC_AWS_SECRET_ACCESS_KEY
+    SERVERLESS_ACCOUNT_ID: $NC_AWS_ACCOUNT_ID
+    SERVERLESS_STAGE: prod
+    SERVERLESS_REGION: eu-west-1
+    SERVERLESS_CUSTOM_DOMAIN_NAME_BASE_DOMAIN_NAME: t.waylon.cloud
+    CONFIG_LOGGER_CONSOLE_OPTIONS_LEVEL: error
+    CONFIG_LOGGER_FILE_OPTIONS_LEVEL: error
+    CONFIG_LOGGER_FILE_OPTIONS_FILENAME: logs/prod.log
+  script:
+    - apt-get update -y && apt-get install gettext-base -y
+    - envsubst < "config/config.json.dist" > "config/config.json"
+    - npm run sls -- package
+    - node scripts/adjust-serverless-state.js
+    - npm run sls -- deploy --package .serverless
+    - rm config/config.json
+  only:    
+    - production

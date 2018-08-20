@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ShortenerConfigSchema",
+    "description": "URL Shortener Config Schema",
+    "type": "object",
+    "properties": {
+        "logger": {
+            "type": "object"
+        },
+        "dynamodb": {
+            "type": "object",
+            "properties": {
+                "region": {
+                    "type": "string"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "accessKeyId": {
+                    "type": "string"
+                },
+                "secretAccessKey": {
+                    "type": "string"
+                },
+                "trackingUrlTable": {
+                    "type": "string"
+                },
+                "trackerIndex": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false,
+            "required": ["region", "trackingUrlTable", "trackerIndex"]
+        }
+    },
+    "required": ["logger", "dynamodb"]
+}

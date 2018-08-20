@@ -1,0 +1,11 @@
+version: '2'
+services:
+    dynamodb:
+        image: peopleperhour/dynamodb
+    node:
+        image: node:6.10
+        links:
+            - dynamodb
+        volumes:
+            - ../:/data
+        stdin_open: true
